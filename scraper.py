@@ -18,44 +18,46 @@ def safe_scrape(url):
         if response.status_code == 200:
             return BeautifulSoup(response.text, 'html.parser')
     except Exception as e:
-        print(f"Error scraping {url}: {e}")
+        print(f"Error: {e}")
     return None
 
 def main():
     date_str = datetime.now().strftime("%Y-%m-%d")
-    
-    # Formatted strictly to Microsoft's standard text requirements
     report_content = f"WEEKLY COMPETITOR INTELLIGENCE SUMMARY ({date_str})\n\n"
     
     for name, url in COMPETITORS.items():
         report_content += f"COMPANY: {name}\n"
         soup = safe_scrape(url)
-        
         if soup:
             text = ' '.join([p.text for p in soup.find_all(['p', 'h1', 'h2', 'span'])[:20]])
-            clean_text = text[:250].replace('"', "'").replace('\n', ' ').strip()
-            report_content += f"• Homepage Snapshot: {clean_text}...\n"
-            
-            links = [a.text.strip() for a in soup.find_all('a') if len(a.text.strip()) > 15][:3]
-            if links:
-                report_content += "• Links Found:\n"
-                for link in links:
-                    clean_link = link.replace('"', "'").replace('\n', ' ').strip()
-                    report_content += f"  - {clean_link}\n"
-        else:
-            report_content += "• Status: Webpage scan failed this week.\n"
-        report_content += "\n-------------------------------------\n\n"
+            report_content += f"• Homepage Snapshot: {text[:250]}...\n"
+        report_content += "\n-------------\n\n"
         
     teams_url = os.environ.get("TEAMS_WEBHOOK_URL")
     if teams_url:
-        # Verified official Microsoft Workflow webhook payload schema
-        payload = {"text": report_content}
-        
+        payload = {
+            "type": "message",
+            "attachments": [
+                {
+                    "contentType": "application/vnd.microsoft.card.adaptive",
+                    "content": {
+                        "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+                        "type": "AdaptiveCard",
+                        "version": "1.2",
+                        "body": [
+                            {
+                                "type": "TextBlock",
+                                "text": report_content,
+                                "wrap": True,
+                                "fontType": "Monospace"
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
         response = requests.post(teams_url, json=payload)
-        print(f"Teams Server Response Code: {response.status_code}")
-        print(f"Teams Server Server Message: {response.text}")
-    else:
-        print("Error: Missing TEAMS_WEBHOOK_URL secret!")
+        print(f"Teams response: {response.status_code} - {response.text}")
 
 if __name__ == "__main__":
     main()
