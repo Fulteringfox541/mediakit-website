@@ -23,29 +23,38 @@ def safe_scrape(url):
 
 def main():
     date_str = datetime.now().strftime("%Y-%m-%d")
-    report_content = f"Weekly Competitor Intelligence Summary ({date_str})\n\n"
+    
+    # We build the report using clean, basic HTML line breaks (<br>) that Teams loves
+    report_content = f"<h2>Weekly competitor insights summary ({date_str})</h2><br><br>"
     
     for name, url in COMPETITORS.items():
-        report_content += f"### 🏢 {name}\n"
+        report_content += f"<h3>🏢 {name}</h3>"
         soup = safe_scrape(url)
         
         if soup:
             text = ' '.join([p.text for p in soup.find_all(['p', 'h1', 'h2', 'span'])[:20]])
-            report_content += f"**Homepage Snapshot:** {text[:300]}...\n\n"
+            # Clean text of any rogue quotes that break webhooks
+            clean_text = text[:300].replace('"', "'").replace('\n', ' ')
+            report_content += f"<b>Homepage Snapshot:</b> {clean_text}...<br><br>"
             
             links = [a.text.strip() for a in soup.find_all('a') if len(a.text.strip()) > 15][:5]
-            report_content += "**Latest Content Links:**\n"
+            report_content += "<b>Latest Content Links:</b><br>"
             for link in links:
-                report_content += f"- {link}\n"
-            report_content += "\n"
+                clean_link = link.replace('"', "'").replace('\n', ' ')
+                report_content += f"• {clean_link}<br>"
+            report_content += "<br>"
         else:
-            report_content += "*Failed to scrape site this week.*\n\n"
-        report_content += "---\n"
+            report_content += "<i>Failed to scrape site this week.</i><br><br>"
+        report_content += "<hr><br>"
         
-    # Save the text directly to a file that GitHub can read
-    with open("weekly_report.txt", "w", encoding="utf-8") as f:
-        f.write(report_content)
-    print("Report compiled successfully!")
+    # Send directly to Microsoft Teams right here inside Python (much more stable)
+    teams_url = os.environ.get("TEAMS_WEBHOOK_URL")
+    if teams_url:
+        payload = {"text": report_content}
+        response = requests.post(teams_url, json=payload)
+        print(f"Teams delivery status: {response.status_code}")
+    else:
+        print("Missing TEAMS_WEBHOOK_URL secret!")
 
 if __name__ == "__main__":
     main()
