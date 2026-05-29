@@ -7,45 +7,43 @@ from datetime import datetime
 
 # ============================================================
 # SETUP: replace the placeholder URLs below with the real ones.
-# For each competitor:
 #   "content"  = their blog / insights / news / resources page
 #   "product"  = their main product or solutions page
-#   "linkedin" = their LinkedIn company page (NOT scraped, just linked
-#                in the report so you can check it manually)
-# Leave any value as None to skip it for that company.
+#   "linkedin" = their LinkedIn company page (NOT scraped, just linked)
 # ============================================================
 COMPETITORS = {
     "SPi (Structured Products Intelligence)": {
-        "content":  "https://sp-intelligence.com/webflow-page/research",   # CHECK THIS URL
-        "product":  "https://sp-intelligence.com/",   # CHECK THIS URL
-        "linkedin": "https://www.linkedin.com/company/spintelligence/posts/?feedView=all",   # CHECK THIS URL
+        "content":  "https://sp-intelligence.com/webflow-page/research",
+        "product":  "https://sp-intelligence.com/",
+        "linkedin": "https://www.linkedin.com/company/spintelligence/posts/?feedView=all",
     },
     "LPA (Lucht Probst Associates)": {
-        "content":  "https://www.l-p-a.com/about-lpa/news-archive/",             # CHECK THIS URL
-        "product":  "https://www.l-p-a.com/capmatix/",            # CHECK THIS URL
-        "linkedin": "https://www.linkedin.com/company/lpa-lucht-probst-associates-gmbh/posts/?feedView=all",   # CHECK THIS URL
+        "content":  "https://www.l-p-a.com/about-lpa/news-archive/",
+        "product":  "https://www.l-p-a.com/capmatix/",
+        "linkedin": "https://www.linkedin.com/company/lpa-lucht-probst-associates-gmbh/posts/?feedView=all",
     },
     "WSD (Wall Street Docs)": {
-        "content":  "https://www.wsd.com/company/about-wsd#history",               # CHECK THIS URL
-        "product":  "https://www.wsd.com/products/structured-products-intelligence",               # CHECK THIS URL
-        "linkedin": "https://www.linkedin.com/company/wsdgroup/posts/?feedView=all",   # CHECK THIS URL
+        "content":  "https://www.wsd.com/company/about-wsd#history",
+        "product":  "https://www.wsd.com/products/structured-products-intelligence",
+        "linkedin": "https://www.linkedin.com/company/wsdgroup/posts/?feedView=all",
     },
     "Leonteq": {
-        "content":  "https://www.leonteq.com/news-and-media/news/investment-themes",               # CHECK THIS URL
-        "product":  "https://www.leonteq.com/our-solutions/products/for-end-investors",           # CHECK THIS URL
-        "linkedin": "https://www.linkedin.com/company/leonteq/posts/?feedView=all",  # CHECK THIS URL
+        "content":  "https://www.leonteq.com/news-and-media/news/investment-themes",
+        "product":  "https://www.leonteq.com/our-solutions/products/for-end-investors",
+        "linkedin": "https://www.linkedin.com/company/leonteq/posts/?feedView=all",
     },
     "Cegaware": {
-        "content":  "https://www.cegaware.com/blog",          # CHECK THIS URL
-        "product":  "https://www.cegaware.com",          # CHECK THIS URL
-        "linkedin": "https://www.linkedin.com/company/cegaware/posts/?feedView=all", # CHECK THIS URL
+        "content":  "https://www.cegaware.com/blog",
+        "product":  "https://www.cegaware.com",
+        "linkedin": "https://www.linkedin.com/company/cegaware/posts/?feedView=all",
     },
 }
 
-# Page types that get scraped and compared. LinkedIn is deliberately excluded.
 TRACKED_PAGES = ["content", "product"]
-
 STATE_FILE = "state.json"
+
+# How many new sentences to show per changed page, so the report stays readable.
+MAX_NEW_SENTENCES = 8
 
 
 def fetch_page_text(url):
@@ -58,7 +56,6 @@ def fetch_page_text(url):
         if response.status_code != 200:
             return None
         soup = BeautifulSoup(response.text, 'html.parser')
-        # Drop nav, scripts, styles, and footers so we compare real content.
         for tag in soup(['script', 'style', 'nav', 'header', 'footer']):
             tag.decompose()
         text = ' '.join(soup.get_text(separator=' ').split())
@@ -69,8 +66,38 @@ def fetch_page_text(url):
 
 
 def fingerprint(text):
-    """A short signature of the page content, used to detect change."""
     return hashlib.sha256(text.encode('utf-8')).hexdigest()
+
+
+def split_sentences(text):
+    """Rough sentence split. Good enough to spot what is new without
+    needing any extra libraries."""
+    chunks = []
+    current = ""
+    for char in text:
+        current += char
+        if char in ".!?" and len(current.strip()) > 0:
+            chunks.append(current.strip())
+            current = ""
+    if current.strip():
+        chunks.append(current.strip())
+    return chunks
+
+
+def find_new_content(old_text, new_text):
+    """Return the sentences present in the new text that were not in the old
+    text. This is what actually changed, rather than the whole page."""
+    old_sentences = set(split_sentences(old_text))
+    new_sentences = split_sentences(new_text)
+
+    added = [s for s in new_sentences if s not in old_sentences and len(s) > 20]
+
+    if not added:
+        # Text changed but no clearly new sentences (for example wording
+        # tweaks or reordering). Say so honestly rather than show nothing.
+        return None
+
+    return added[:MAX_NEW_SENTENCES]
 
 
 def load_state():
@@ -93,9 +120,9 @@ def build_report():
     new_state = {}
     date_str = datetime.now().strftime("%Y-%m-%d")
 
-    changed_blocks = []   # competitors with something new
-    quiet = []            # competitors with no change
-    unreachable = []      # pages that could not be checked
+    changed_blocks = []
+    quiet = []
+    unreachable = []
 
     for name, pages in COMPETITORS.items():
         company_changes = []
@@ -111,20 +138,31 @@ def build_report():
                 continue
 
             new_fp = fingerprint(text)
-            new_state[key] = new_fp
-            old_fp = state.get(key)
+            # Store fingerprint and text so we can compare next week.
+            new_state[key] = {"fp": new_fp, "text": text}
+
+            old_entry = state.get(key)
+            old_fp = old_entry.get("fp") if isinstance(old_entry, dict) else None
+            old_text = old_entry.get("text", "") if isinstance(old_entry, dict) else ""
 
             if old_fp is None:
-                # First time seeing this page. Record it, do not report it as
-                # a change (there is nothing to compare to yet).
+                # First time seeing this page. Record baseline, do not report.
                 continue
 
             if new_fp != old_fp:
-                snippet = text[:300].strip()
-                company_changes.append(
-                    f"  {page_type.upper()} page changed.\n"
-                    f"  Now showing: {snippet}...\n"
-                )
+                added = find_new_content(old_text, text)
+                if added:
+                    bullet_lines = "\n".join(f"    - {s}" for s in added)
+                    company_changes.append(
+                        f"  {page_type.upper()} page changed: {url}\n"
+                        f"  New content:\n{bullet_lines}\n"
+                    )
+                else:
+                    company_changes.append(
+                        f"  {page_type.upper()} page changed: {url}\n"
+                        f"  (Minor change only: wording or layout tweaks, "
+                        f"no clearly new content.)\n"
+                    )
 
         if company_changes:
             block = f"{name}\n" + "\n".join(company_changes)
@@ -135,7 +173,6 @@ def build_report():
         else:
             quiet.append(name)
 
-    # Assemble the report
     lines = [f"WEEKLY COMPETITOR SNAPSHOT  ({date_str})", ""]
 
     if changed_blocks:
@@ -155,7 +192,6 @@ def build_report():
         lines.append("Could not reach: " + ", ".join(unreachable))
         lines.append("")
 
-    # Always list LinkedIn pages as a manual prompt, since these are not scraped.
     lines.append("LinkedIn pages to glance at (not auto-checked):")
     for name, pages in COMPETITORS.items():
         linkedin = pages.get("linkedin")
@@ -164,9 +200,9 @@ def build_report():
     lines.append("")
 
     lines.append(
-        "Note: this flags that website pages changed and roughly what appeared. "
-        "It does not judge commercial relevance, and it does not read LinkedIn. "
-        "Review anything flagged before acting."
+        "Note: this shows text that is newly present on a page since last week. "
+        "It flags what changed, not why it matters. For a plain-English read, "
+        "paste anything interesting into Claude. LinkedIn is not auto-checked."
     )
 
     save_state(new_state)
