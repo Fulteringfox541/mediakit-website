@@ -24,37 +24,38 @@ def safe_scrape(url):
 def main():
     date_str = datetime.now().strftime("%Y-%m-%d")
     
-    # We build the report using clean, basic HTML line breaks (<br>) that Teams loves
-    report_content = f"<h2>Weekly competitor insights summary ({date_str})</h2><br><br>"
+    # Formatted strictly to Microsoft's standard text requirements
+    report_content = f"WEEKLY COMPETITOR INTELLIGENCE SUMMARY ({date_str})\n\n"
     
     for name, url in COMPETITORS.items():
-        report_content += f"<h3>🏢 {name}</h3>"
+        report_content += f"COMPANY: {name}\n"
         soup = safe_scrape(url)
         
         if soup:
             text = ' '.join([p.text for p in soup.find_all(['p', 'h1', 'h2', 'span'])[:20]])
-            # Clean text of any rogue quotes that break webhooks
-            clean_text = text[:300].replace('"', "'").replace('\n', ' ')
-            report_content += f"<b>Homepage Snapshot:</b> {clean_text}...<br><br>"
+            clean_text = text[:250].replace('"', "'").replace('\n', ' ').strip()
+            report_content += f"• Homepage Snapshot: {clean_text}...\n"
             
-            links = [a.text.strip() for a in soup.find_all('a') if len(a.text.strip()) > 15][:5]
-            report_content += "<b>Latest Content Links:</b><br>"
-            for link in links:
-                clean_link = link.replace('"', "'").replace('\n', ' ')
-                report_content += f"• {clean_link}<br>"
-            report_content += "<br>"
+            links = [a.text.strip() for a in soup.find_all('a') if len(a.text.strip()) > 15][:3]
+            if links:
+                report_content += "• Links Found:\n"
+                for link in links:
+                    clean_link = link.replace('"', "'").replace('\n', ' ').strip()
+                    report_content += f"  - {clean_link}\n"
         else:
-            report_content += "<i>Failed to scrape site this week.</i><br><br>"
-        report_content += "<hr><br>"
+            report_content += "• Status: Webpage scan failed this week.\n"
+        report_content += "\n-------------------------------------\n\n"
         
-    # Send directly to Microsoft Teams right here inside Python (much more stable)
     teams_url = os.environ.get("TEAMS_WEBHOOK_URL")
     if teams_url:
+        # Verified official Microsoft Workflow webhook payload schema
         payload = {"text": report_content}
+        
         response = requests.post(teams_url, json=payload)
-        print(f"Teams delivery status: {response.status_code}")
+        print(f"Teams Server Response Code: {response.status_code}")
+        print(f"Teams Server Server Message: {response.text}")
     else:
-        print("Missing TEAMS_WEBHOOK_URL secret!")
+        print("Error: Missing TEAMS_WEBHOOK_URL secret!")
 
 if __name__ == "__main__":
     main()
