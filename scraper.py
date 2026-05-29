@@ -1,37 +1,14 @@
 import os
 import requests
 from bs4 import BeautifulSoup
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+from datetime import datetime
 
-# 1. Configuration - Your 5 Competitors
 COMPETITORS = {
-    "SPi (Structured Products Intelligence)": {
-        "homepage": "https://sp-intelligence.com/",
-        "pricing": "https://sp-intelligence.com/",
-        "blog": "https://sp-intelligence.com/"
-    },
-    "LPA (Lucht Probst Associates)": {
-        "homepage": "http://www.l-p-a.com/",
-        "pricing": "http://www.l-p-a.com/",
-        "blog": "http://www.l-p-a.com/"
-    },
-    "WSD (Wall Street Docs)": {
-        "homepage": "https://www.wsd.com/",
-        "pricing": "https://www.wsd.com/",
-        "blog": "https://www.wsd.com/"
-    },
-    "Leonteq": {
-        "homepage": "https://www.leonteq.com/",
-        "pricing": "https://www.leonteq.com/",
-        "blog": "https://www.leonteq.com/"
-    },
-    "Cegaware": {
-        "homepage": "https://www.cegaware.com/",
-        "pricing": "https://www.cegaware.com/",
-        "blog": "https://www.cegaware.com/"
-    }
+    "SPi (Structured Products Intelligence)": "https://sp-intelligence.com",
+    "LPA (Lucht Probst Associates)": "http://l-p-a.com",
+    "WSD (Wall Street Docs)": "https://wsd.com",
+    "Leonteq": "https://leonteq.com",
+    "Cegaware": "https://cegaware.com"
 }
 
 def safe_scrape(url):
@@ -44,57 +21,31 @@ def safe_scrape(url):
         print(f"Error scraping {url}: {e}")
     return None
 
-def extract_intel():
-    email_body = "<h2>Weekly Competitor Intelligence Summary</h2><br>"
+def main():
+    date_str = datetime.now().strftime("%Y-%m-%d")
+    report_content = f"Weekly Competitor Intelligence Summary ({date_str})\n\n"
     
-    for name, urls in COMPETITORS.items():
-        email_body += f"<h3>🏢 {name}</h3>"
+    for name, url in COMPETITORS.items():
+        report_content += f"### 🏢 {name}\n"
+        soup = safe_scrape(url)
         
-        # Scrape Pricing Text
-        soup_price = safe_scrape(urls["pricing"])
-        if soup_price:
-            text = ' '.join([p.text for p in soup_price.find_all(['p', 'h1', 'h2', 'span'])[:20]])
-            email_body += f"<p><b>Pricing Snippet / Page Text:</b> {text[:300]}...</p>"
-        
-        # Scrape Blog / Content Links
-        soup_blog = safe_scrape(urls["blog"])
-        if soup_blog:
-            links = [a.text.strip() for a in soup_blog.find_all('a') if len(a.text.strip()) > 15][:5]
-            email_body += "<p><b>Latest Content Links found:</b></p><ul>"
-            for link in links:
-                email_body += f"<li>{link}</li>"
-            email_body += "</ul>"
+        if soup:
+            text = ' '.join([p.text for p in soup.find_all(['p', 'h1', 'h2', 'span'])[:20]])
+            report_content += f"**Homepage Snapshot:** {text[:300]}...\n\n"
             
-        email_body += "<hr>"
-    return email_body
-
-def send_email(content):
-    sender_email = os.environ.get("SENDER_EMAIL")
-    sender_password = os.environ.get("SENDER_PASSWORD")
-    receiver_email = os.environ.get("RECEIVER_EMAIL")
-    
-    if not sender_email or not sender_password:
-        print("Email credentials missing. Skipping email send.")
-        print(content)
-        return
-
-    msg = MIMEMultipart()
-    msg['From'] = sender_email
-    msg['To'] = receiver_email
-    msg['Subject'] = "Weekly Competitor Intelligence Digest"
-    
-    msg.attach(MIMEText(content, 'html'))
-    
-    try:
-        server = smtplib.SMTP('://gmail.com', 587)
-        server.starttls()
-        server.login(sender_email, sender_password)
-        server.send_message(msg)
-        server.quit()
-        print("Email sent successfully!")
-    except Exception as e:
-        print(f"Failed to send email: {e}")
+            links = [a.text.strip() for a in soup.find_all('a') if len(a.text.strip()) > 15][:5]
+            report_content += "**Latest Content Links:**\n"
+            for link in links:
+                report_content += f"- {link}\n"
+            report_content += "\n"
+        else:
+            report_content += "*Failed to scrape site this week.*\n\n"
+        report_content += "---\n"
+        
+    # Save the text directly to a file that GitHub can read
+    with open("weekly_report.txt", "w", encoding="utf-8") as f:
+        f.write(report_content)
+    print("Report compiled successfully!")
 
 if __name__ == "__main__":
-    report = extract_intel()
-    send_email(report)
+    main()
