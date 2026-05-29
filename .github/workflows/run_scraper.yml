@@ -8,8 +8,6 @@ on:
 jobs:
   run-scraper:
     runs-on: ubuntu-latest
-    permissions:
-      issues: write # Gives GitHub permission to open an issue and email you
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -23,13 +21,6 @@ jobs:
       run: pip install requests beautifulsoup4
 
     - name: Run Script
-      run: python scraper.py
-
-    - name: Trigger Automated Email
       env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        REPORT_BODY=$(cat weekly_report.txt)
-        gh issue create \
-          --title "SRP | Weekly cometitor insights" \
-          --body "$REPORT_BODY"
+        TEAMS_WEBHOOK_URL: ${{ secrets.TEAMS_WEBHOOK_URL }}
+      run: python scraper.py
