@@ -49,7 +49,7 @@ October 2019 – June 2021
 
 - Company-wide AI champion and the internal go-to for applied AI in marketing, running workshops for colleagues across the business, including on Claude Code and Claude's design tooling.
 - Built the internal business case for enterprise AI, with my work presented to the CEO and CFO to demonstrate value to marketing and the wider company; now progressing through a trial toward an enterprise licence.
-- Built an automated weekly reporting workflow for SRP that pulls from Google Analytics and Power BI to map lead source, channel, and intent (warm versus hot), then surfaces 3–5 prioritised recommendations to direct the week's focus.
+- Built an automated weekly reporting workflow for SRP that pulls from Google Analytics and Power BI to map lead source, channel, and intent (warm versus hot), then surfaces 3–5 prioritised, data-driven recommendations to direct the week's focus — saving 2–3 hours each week while producing sharper, more actionable takeaways.
 - Use the resulting insight to brief senior marketers, the CMO, and business-wide leadership, sharpening focus on the website as the primary source of high-intent leads and the strongest predictor of closed-won deals.
 - Automated production of the brand's weekly newsletter, removing manual effort from a recurring deliverable.
 
