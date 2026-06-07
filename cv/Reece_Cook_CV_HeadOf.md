@@ -5,15 +5,15 @@ London | rcook2711@gmail.com | 07823 810350 | linkedin.com/in/reececook
 
 ## PROFILE
 
-Marketing leader who owns brands end to end — strategy, brand, demand generation, and revenue contribution — in B2B financial intelligence. Currently sole marketing lead for SRP, the highest-ARR brand in the Derivia Intelligence portfolio, where I hold full P&L-facing ownership, manage the budget, and report into the CMO; marketing-sourced initiatives generated £1.1m in new business in FY25 and accounted for 70% of all new revenue, during a period of growth that culminated in Derivia's acquisition by Triple Private Equity. Recognised as the company-wide AI champion, briefing senior leadership up to CEO and CFO level. Now ready to lead or build a marketing function.
+Marketing leader in B2B financial intelligence who owns brands end to end: strategy, brand, demand generation, and revenue contribution. Currently sole marketing lead for SRP, the highest-ARR brand in the Derivia Intelligence portfolio, where I hold full P&L-facing ownership, manage the budget, and report into the CMO; marketing-sourced initiatives generated £1.1m in new business in FY25 and accounted for 70% of all new revenue, during a period of growth that culminated in Derivia's acquisition by Triple Private Equity. Recognised as the company-wide AI champion, briefing senior leadership up to CEO and CFO level. Now ready to lead or build a marketing function.
 
 ## LEADERSHIP HIGHLIGHTS
 
-- **Owns brands end to end** — full responsibility for strategy, brand, demand generation, attribution, and revenue across the highest-ARR brand in the portfolio.
-- **Drives revenue, not just activity** — £1.1m new business in FY25 (70% of all new revenue); grew marketing-attributed revenue to 34% of subscription revenue at With Intelligence (+50% YoY).
-- **Builds and leads teams** — line-managed marketers across multiple brands; currently scaling the SRP team as the brand grows.
-- **Influences at board level** — briefs the CMO and business-wide senior leadership weekly; presented the enterprise AI business case directly to the CEO and CFO.
-- **Sets the AI agenda company-wide** — internal AI champion running cross-functional workshops and embedding applied AI across marketing.
+- **Owns brands end to end:** full responsibility for strategy, brand, demand generation, attribution, and revenue across the highest-ARR brand in the portfolio.
+- **Drives revenue, not just activity:** £1.1m new business in FY25 (70% of all new revenue); grew marketing-attributed revenue to 34% of subscription revenue at With Intelligence (+50% YoY).
+- **Builds and leads teams:** line-managed marketers across multiple brands; currently scaling the SRP team as the brand grows.
+- **Influences at board level:** briefs the CMO and business-wide senior leadership weekly; presented the enterprise AI business case directly to the CEO and CFO.
+- **Sets the AI agenda company-wide:** internal AI champion running cross-functional workshops and embedding applied AI across marketing.
 
 ## EXPERIENCE
 
@@ -57,7 +57,7 @@ October 2019 – June 2021
 
 - Company-wide AI champion and the internal go-to for applied AI in marketing, running workshops for colleagues across the business, including on Claude Code and Claude's design tooling.
 - Built the internal business case for enterprise AI, with my work presented to the CEO and CFO to demonstrate value to marketing and the wider company; now progressing through a trial toward an enterprise licence.
-- Built an automated weekly reporting workflow for SRP that pulls from Google Analytics and Power BI to map lead source, channel, and intent (warm versus hot), then surfaces 3–5 prioritised, data-driven recommendations to direct the week's focus — saving 2–3 hours each week while producing sharper, more actionable takeaways.
+- Built an automated weekly reporting workflow for SRP that pulls from Google Analytics and Power BI to map lead source, channel, and intent (warm versus hot), then surfaces 3–5 prioritised, data-driven recommendations to direct the week's focus, saving 2–3 hours each week while producing sharper, more actionable takeaways.
 - Use the resulting insight to brief senior marketers, the CMO, and business-wide leadership, sharpening focus on the website as the primary source of high-intent leads and the strongest predictor of closed-won deals.
 - Automated production of the brand's weekly newsletter, removing manual effort from a recurring deliverable.
 
