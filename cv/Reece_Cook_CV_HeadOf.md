@@ -13,7 +13,6 @@ Marketing leader in B2B financial intelligence who owns brands end to end: strat
 - **Drives revenue and pipeline:** £1.1m new business in FY25 (70% of all new revenue); grew marketing-attributed revenue to 34% of subscription revenue at With Intelligence (+50% YoY).
 - **Builds and leads teams:** line-managed marketers across multiple brands; currently scaling the SRP team as the brand grows.
 - **Influences at board level:** briefs the CMO and business-wide senior leadership weekly; presented the enterprise AI business case directly to the CEO and CFO.
-- **Sets the AI agenda company-wide:** internal AI champion running cross-functional workshops and embedding applied AI across marketing.
 
 ## EXPERIENCE
 
@@ -44,14 +43,12 @@ Led B2B marketing strategy for 2 distinct brands across hedge fund and private m
 **TMT Finance | Marketing Executive**
 June 2021 – May 2022
 
-- Built a competitive social media strategy off the back of a full competitor audit, turning organic social into a primary lead generation channel.
-- Fixed on-page SEO issues and improved core website metrics, establishing the site as a meaningful inbound channel for the first time.
+- Turned organic social into a primary lead generation channel through a competitor-led strategy, and fixed on-page SEO to make the website a meaningful inbound channel for the first time.
 
 **Domestic & General | Customer Retention Executive**
 October 2019 – June 2021
 
-- Improved monthly retention rate by 15% through targeted lifecycle campaigns, exceeding renewal targets every month of the financial year.
-- Wrote bespoke copy for customer touchpoints across the renewal journey, contributing to consistent above-budget performance.
+- Improved monthly retention rate by 15% through targeted lifecycle campaigns and bespoke renewal copy, beating renewal targets every month of the financial year.
 
 ## APPLIED AI
 
